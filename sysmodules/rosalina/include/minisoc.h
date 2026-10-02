@@ -39,6 +39,8 @@ int socPoll(struct pollfd *fds, nfds_t nfds, int timeout);
 int socSetsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
 int socClose(int sockfd);
 long socGethostid(void);
+int miniSocGetNetworkOpt(int level, int optname, void *optval, socklen_t *optlen);
+bool miniSocResolveIPv4(const char *hostname, u32 *address);
 
 ssize_t socRecvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
 ssize_t socSendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);

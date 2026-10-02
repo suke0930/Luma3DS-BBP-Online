@@ -28,6 +28,9 @@
 #include "utils.h"
 #include "ipc.h"
 #include "synchronization.h"
+#include "bbp_proxy_control.h"
+
+volatile u32 g_bbpProxyRedirectEnabled = 0;
 
 Result GetSystemInfoHook(s64 *out, s32 type, s32 param)
 {
@@ -152,6 +155,23 @@ Result GetSystemInfoHook(s64 *out, s32 type, s32 param)
                 case 0x301: // stolen SYSTEM memory size
                     *out = stolenSystemMemRegionSize;
                     break;
+
+                case 0x310: // Enable BBP UDS redirect
+                case 0x311: // Disable BBP UDS redirect
+                {
+                    KProcess *process = currentCoreContext->objectContext.currentProcess;
+                    KCodeSet *codeSet = process != NULL ? codeSetOfProcess(process) : NULL;
+                    if (codeSet == NULL ||
+                        memcmp(codeSet->processName, "rosalina", 8) != 0)
+                    {
+                        *out = 0;
+                        res = 0xF8C007F4;
+                        break;
+                    }
+                    g_bbpProxyRedirectEnabled = param == 0x310 ? 1u : 0u;
+                    *out = g_bbpProxyRedirectEnabled;
+                    break;
+                }
 
                 default:
                     *out = 0;

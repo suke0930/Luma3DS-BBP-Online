@@ -25,6 +25,7 @@
 */
 
 #include <3ds.h>
+#include <string.h>
 #include "menu.h"
 #include "draw.h"
 #include "fmt.h"
@@ -34,6 +35,7 @@
 #include "utils.h"
 #include "luma_config.h"
 #include "menus/n3ds.h"
+#include "menus/bbp_online.h"
 #include "menus/cheats.h"
 #include "minisoc.h"
 #include "plugin.h"
@@ -439,6 +441,8 @@ void menuRequestClose(void)
 
 static void menuDraw(Menu *menu, u32 selected)
 {
+    char bbpOverlay[32];
+    BbpOnline_UpdateMenu(bbpOverlay);
     char versionString[16];
     s64 out;
     u32 version, commitHash;
@@ -485,6 +489,10 @@ static void menuDraw(Menu *menu, u32 selected)
 
     else
         Draw_DrawFormattedString(SCREEN_BOT_WIDTH - 10 - SPACING_X * 15, 10, COLOR_WHITE, "%15s", "");
+
+    if (bbpOverlay[0])
+        Draw_DrawString(SCREEN_BOT_WIDTH - 10 - SPACING_X * strlen(bbpOverlay),
+                        20, COLOR_WHITE, bbpOverlay);
 
     if(mcuInfoRes == 0)
     {

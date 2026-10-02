@@ -22,3 +22,5 @@ exceptions/arm11/build
 
 Luma3DS*.zip
 hbmenu.zip
+
+tests/__pycache__/

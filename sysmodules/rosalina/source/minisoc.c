@@ -18,6 +18,7 @@ static u32 socContextSize = 0x60000;
 static Handle miniSocHandle;
 static Handle miniSocMemHandle;
 static bool exclusiveStateEntered = false;
+static RecursiveLock miniSocLifecycleLock = __LOCK_INITIALIZER_RECURSIVE;
 
 bool miniSocEnabled = false;
 
@@ -92,8 +93,12 @@ void miniSocUnlockState(bool force)
 
 Result miniSocInit(void)
 {
+    RecursiveLock_Lock(&miniSocLifecycleLock);
     if(AtomicPostIncrement(&miniSocRefCount))
+    {
+        RecursiveLock_Unlock(&miniSocLifecycleLock);
         return 0;
+    }
 
     u32 tmp = 0;
     Result ret = 0;
@@ -128,6 +133,7 @@ Result miniSocInit(void)
     svcKernelSetState(0x10000, 0x10);
     miniSocEnabled = true;
 
+    RecursiveLock_Unlock(&miniSocLifecycleLock);
     return 0;
 
 cleanup:
@@ -149,11 +155,13 @@ cleanup:
     if(tmp != 0)
         svcControlMemory(&tmp, socContextAddr, socContextAddr, socContextSize, MEMOP_FREE, MEMPERM_DONTCARE);
 
+    RecursiveLock_Unlock(&miniSocLifecycleLock);
     return ret;
 }
 
 Result miniSocExitDirect(void)
 {
+    RecursiveLock_Lock(&miniSocLifecycleLock);
     Result ret = 0;
     u32 tmp;
 
@@ -173,15 +181,22 @@ Result miniSocExitDirect(void)
         miniSocEnabled = false;
         svcKernelSetState(0x10000, 0x10);
     }
+    RecursiveLock_Unlock(&miniSocLifecycleLock);
     return ret;
 }
 
 Result miniSocExit(void)
 {
+    RecursiveLock_Lock(&miniSocLifecycleLock);
     if(!miniSocEnabled || AtomicDecrement(&miniSocRefCount))
+    {
+        RecursiveLock_Unlock(&miniSocLifecycleLock);
         return 0;
+    }
 
-    return miniSocExitDirect();
+    Result ret = miniSocExitDirect();
+    RecursiveLock_Unlock(&miniSocLifecycleLock);
+    return ret;
 }
 
 int socSocket(int domain, int type, int protocol)
@@ -521,6 +536,73 @@ long socGethostid(void)
         ret = cmdbuf[2];
 
     return ret;
+}
+
+int miniSocGetNetworkOpt(int level, int optname, void *optval, socklen_t *optlen)
+{
+    if (!miniSocEnabled || optval == NULL || optlen == NULL || *optlen == 0)
+        return -1;
+
+    u32 *cmdbuf = getThreadCommandBuffer();
+    u32 *staticbufs = getThreadStaticBuffers();
+    u32 saved[2] = { staticbufs[0], staticbufs[1] };
+    cmdbuf[0] = IPC_MakeHeader(0x1A, 3, 0);
+    cmdbuf[1] = (u32)level;
+    cmdbuf[2] = (u32)optname;
+    cmdbuf[3] = *optlen;
+    staticbufs[0] = IPC_Desc_StaticBuffer(*optlen, 0);
+    staticbufs[1] = (u32)optval;
+
+    Result result = svcSendSyncRequest(miniSocHandle);
+    staticbufs[0] = saved[0];
+    staticbufs[1] = saved[1];
+    if (R_FAILED(result) || R_FAILED((Result)cmdbuf[1]) ||
+        _net_convert_error((s32)cmdbuf[2]) < 0)
+        return -1;
+
+    *optlen = cmdbuf[3];
+    return 0;
+}
+
+bool miniSocResolveIPv4(const char *hostname, u32 *address)
+{
+    static u8 response[0x1A88] __attribute__((aligned(4)));
+    static RecursiveLock lock = __LOCK_INITIALIZER_RECURSIVE;
+    if (!miniSocEnabled || hostname == NULL || address == NULL)
+        return false;
+    size_t length = strlen(hostname);
+    if (length == 0 || length > 253u)
+        return false;
+
+    RecursiveLock_Lock(&lock);
+    u32 *cmdbuf = getThreadCommandBuffer();
+    u32 *staticbufs = getThreadStaticBuffers();
+    u32 saved[2] = { staticbufs[0], staticbufs[1] };
+    memset(response, 0, sizeof(response));
+    cmdbuf[0] = IPC_MakeHeader(0x0D, 2, 2);
+    cmdbuf[1] = (u32)length + 1u;
+    cmdbuf[2] = sizeof(response);
+    cmdbuf[3] = (((u32)length + 1u) << 14) | 0xC02u;
+    cmdbuf[4] = (u32)hostname;
+    staticbufs[0] = IPC_Desc_StaticBuffer(sizeof(response), 0);
+    staticbufs[1] = (u32)response;
+
+    Result result = svcSendSyncRequest(miniSocHandle);
+    staticbufs[0] = saved[0];
+    staticbufs[1] = saved[1];
+
+    u32 addressCount = 0, resolved = 0;
+    if (R_SUCCEEDED(result) && cmdbuf[1] == 0 && (s32)cmdbuf[2] >= 0)
+    {
+        memcpy(&addressCount, response + 4u, sizeof(addressCount));
+        if (addressCount != 0u)
+            memcpy(&resolved, response + 0x1908u, sizeof(resolved));
+    }
+    RecursiveLock_Unlock(&lock);
+    if (addressCount == 0u || resolved == 0u || resolved == UINT32_MAX)
+        return false;
+    *address = resolved;
+    return true;
 }
 
 static ssize_t _socuipc_cmd7(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)

@@ -42,6 +42,8 @@
 #include "draw.h"
 #include "bootdiag.h"
 #include "shell.h"
+#include "uds_redirect.h"
+#include "uds_service.h"
 
 #include "task_runner.h"
 #include "plugin.h"
@@ -134,6 +136,7 @@ Handle preTerminationEvent;
 static void handleTermNotification(u32 notificationId)
 {
     (void)notificationId;
+    (void)UdsService_RequestStop();
 }
 
 static void handleSleepNotification(u32 notificationId)
@@ -265,14 +268,19 @@ int main(void)
     Cheat_SeedRng(svcGetSystemTick());
     ScreenFiltersMenu_LoadConfig();
     SysConfigMenu_LoadConfig();
+    UdsRedirect_LoadConfig();
+
+    if (R_FAILED(UdsService_Start()))
+        svcBreak(USERBREAK_PANIC);
 
     MyThread *menuThread = menuCreateThread();
     MyThread *taskRunnerThread = taskRunnerCreateThread();
     MyThread *errDispThread = errDispCreateThread();
     bootdiagCreateThread();
+    UdsRedirect_CreateRelayThread();
 
-    if (R_FAILED(ServiceManager_Run(services, notifications, NULL)))
-        svcBreak(USERBREAK_PANIC);
+    Result serviceManagerResult = ServiceManager_Run(services, notifications, NULL);
+    Result udsServiceResult = UdsService_StopJoin();
 
     TaskRunner_Terminate();
 
@@ -280,6 +288,9 @@ int main(void)
 
     MyThread_Join(taskRunnerThread, -1LL);
     MyThread_Join(errDispThread, -1LL);
+
+    if (R_FAILED(serviceManagerResult) || R_FAILED(udsServiceResult))
+        svcBreak(USERBREAK_PANIC);
 
     return 0;
 }

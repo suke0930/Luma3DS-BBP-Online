@@ -27,6 +27,23 @@
 
 #include "svc/SendSyncRequest.h"
 #include "ipc.h"
+#include "bbp_proxy_control.h"
+
+static bool BbpProxy_IsTargetProcess(KProcess *process)
+{
+    if (process == NULL)
+        return false;
+
+    KCodeSet *codeSet = codeSetOfProcess(process);
+    if (codeSet == NULL)
+        return false;
+
+    u64 titleId = codeSet->titleId;
+    u32 titleIdHigh = (u32)(titleId >> 32);
+    u32 titleIdLow = (u32)(titleId & ~0xF0000001u);
+    return (titleIdHigh == 0x00040000u && titleIdLow == 0x000A0B00u) ||
+           (titleIdHigh == 0x00040130u && titleIdLow == 0x00002802u);
+}
 
 static inline bool isNdmuWorkaround(const SessionInfo *info, u32 pid)
 {
@@ -54,6 +71,12 @@ Result SendSyncRequestHook(Handle handle)
             case 0x10042:
             {
                 SessionInfo *info = SessionInfo_Lookup(clientSession->parentSession);
+                if (info != NULL && strcmp(info->name, "ndm:u") == 0 &&
+                    g_bbpProxyRedirectEnabled != 0u &&
+                    cmdbuf[1] == 2u &&
+                    BbpProxy_IsTargetProcess(currentProcess))
+                    cmdbuf[1] = 1u; // Keep infrastructure Wi-Fi active for the relay.
+
                 if(isNdmuWorkaround(info, pid))
                 {
                     cmdbuf[0] = 0x10040;
@@ -111,6 +134,16 @@ Result SendSyncRequestHook(Handle handle)
                 {
                     char name[9] = { 0 };
                     memcpy(name, cmdbuf + 1, 8);
+
+                    if (strcmp(name, "nwm::UDS") == 0 &&
+                        g_bbpProxyRedirectEnabled != 0u &&
+                        BbpProxy_IsTargetProcess(currentProcess))
+                    {
+                        const char *plg = "plg:UDS";
+                        memcpy(cmdbuf + 1, plg, 8);
+                        memcpy(name, plg, 8);
+                        cmdbuf[3] = 7;
+                    }
 
                     skip = true;
                     res = SendSyncRequest(handle);
