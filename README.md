@@ -10,13 +10,14 @@
 > [!NOTE]
 > ### Band Brothers P Online (Luma3DS Fork)
 >
-> This fork allows fans to continue enjoying **Daigassou! Band Brothers P** multiplayer over the internet with friends after the official Nintendo Network shutdown.
+> This Luma3DS fork lets you play **Daigassou! Band Brothers P**'s local wireless multiplayer over the internet.
 >
-> It intercepts the game's local wireless multiplayer (`nwm::UDS` / "Play with nearby people") and relays it across the internet, encrypting the traffic between each console and the relay server.
+> It forwards the game's local wireless traffic (`nwm::UDS` / "Play with nearby people") through a relay server.
 >
-> - **Seamless In-game Experience**: Simply select local wireless multiplayer in-game; Luma redirects the traffic online automatically.
-> - **Rosalina "BBP Online" Menu**: With BBP closed, press <kbd>L</kbd>+<kbd>Down</kbd>+<kbd>Select</kbd> and open BBP Online. Select the same relay and channel (1–5) or 4-digit room PIN on all consoles, turn Relay ON, then launch the game. Relay starts OFF on every console boot. Enabling Relay or changing these settings while BBP is running is not supported; status checks remain available.
-> - **Encrypted Relay**: Packets are encrypted using Noise NN (`ChaCha20-Poly1305` / `BLAKE2b`). Noise NN does not authenticate the server, and the relay can decrypt the traffic; this is not end-to-end encryption between players. A 4-digit PIN selects a room and is not an authentication credential.
+> - **In-game Controls**: After setting up Relay, select local wireless multiplayer in-game to create a room or join an available room.
+> - **Rosalina "BBP Online" Menu**: With BBP closed, press <kbd>L</kbd>+<kbd>Down</kbd>+<kbd>Select</kbd> and open BBP Online. You can normally leave the default settings, turn Relay ON, then launch the game. To play within your group, set your shared PIN first. See [Playing online](#playing-online) for details. You cannot enable Relay or change settings while BBP is running (the Status screen remains available).
+> - **Server Status**: Open "Status" in the menu to check connection latency (Ping/RTT), online player count, recruiting rooms per channel, and rooms currently in game (<kbd>X</kbd> to refresh). This remains available while BBP is running.
+> - **Encrypted Relay**: Traffic between each console and the relay server is encrypted using Noise NN (`ChaCha20-Poly1305` / `BLAKE2b`). The relay server decrypts the traffic. The connection does not authenticate the server to verify that it is the intended relay.
 > - **Relay Servers**: The default server is `bbprelay.f5.si:24873`. You can configure other relay servers using Custom 1–3 in Rosalina.
 > - **Prerequisites**: All players need the cartridge or digital version of *Daigassou! Band Brothers P* with Update Ver. 2.1 installed on their 3DS. Download Play is not supported.
 >
@@ -46,10 +47,28 @@
 * Ability to chainload other firmware files, including other versions of itself
 * ... and much more!
 
+## Playing online
+
+### Public play
+
+The default settings are for public play. Leave the PIN at `0000` and select local wireless multiplayer in-game to create a room or join an available room.
+
+You normally do not need to change the channel. Each channel has four slots for recruiting rooms. If those slots are full and you cannot create a room, close BBP before switching to another channel (1–5). You can check room counts on the Status screen.
+
+### Playing within your group
+
+Choose the same relay server as the people you want to play with, share a 4-digit PIN (`0001`–`9999`), and have everyone set that PIN. Only rooms created by players using the same PIN are shown in-game, and these rooms do not appear in public listings. Channel settings have no effect when using a PIN.
+
+Anyone using the same PIN can join, so share it only with the people you want to play with.
+
+### Settings at startup
+
+Every time the console boots, Relay is OFF, the channel is `1`, and the PIN is `0000`. Set these before launching BBP when you want to play online.
+
 ## Installation and upgrade
 Luma3DS requires [boot9strap](https://github.com/SciresM/boot9strap) to run.
 
-Once boot9strap has been installed, simply download the [latest release archive](https://github.com/LumaTeam/Luma3DS/releases/latest) and extract the archive onto the root of your SD card to "install" or to upgrade Luma3DS alongside the [homebrew menu and certs bundle](https://github.com/devkitPro/3ds-hbmenu) shipped with it. Replace existing files and merge existing folders if necessary.
+For BBP Online, download `boot.firm` from [this fork's releases](https://github.com/suke0930/Luma3DS-BBP-Online/releases). Back up your existing `boot.firm`, then copy the downloaded file to the root of your SD card. Standard [upstream Luma3DS releases](https://github.com/LumaTeam/Luma3DS/releases/latest) do not include BBP Online.
 
 ## Basic usage
 **The main Luma3DS configuration menu** can be accessed by pressing <kbd>Select</kbd> at boot. The configuration file is stored in `/luma/config.ini` on the SD card (or `/rw/luma/config.ini` on the CTRNAND partition if Luma3DS has been launched from the CTRNAND partition, which happens when SD card is missing).
@@ -131,13 +150,13 @@ Luma3DS would not be what it is without the contributions and constructive feedb
 
 ## Copyright
 
-- This software was developed to let fans who legally purchased and own the game continue playing together after the official online services ended.
+- This software lets people who purchased and own the game continue playing together after the official online services ended.
 - This project is an unofficial, fan-made open-source project and is not affiliated with Nintendo Co., Ltd.
 - This repository does not contain or distribute Nintendo's copyrighted materials, such as game ROMs, update data, assets or official binaries.
 
 ## Special Thanks
 AI tools including GPT and DeepSeek were used in the development of this fork.
 
-- **[Nintendo](https://www.nintendo.com/)**: With our deepest respect and gratitude to Nintendo and the original creators for delivering *Daigassou! Band Brothers P* and countless unforgettable gaming memories.
+- **[Nintendo](https://www.nintendo.com/)**: Nintendo and the developers of *Daigassou! Band Brothers P*.
 - **[Luma3DS](https://github.com/LumaTeam/Luma3DS)**: The Luma3DS developers and contributors for the custom firmware base.
 - **[DDNS Now (f5.si)](https://ddns.kuku.lu/)**: For providing the free dynamic DNS domain used in the default preset.
