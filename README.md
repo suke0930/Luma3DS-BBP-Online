@@ -14,12 +14,12 @@
 >
 > It forwards the game's local wireless traffic (`nwm::UDS` / "Play with nearby people") through a relay server.
 >
-> - **In-game Controls**: After setting up Relay, select local wireless multiplayer in-game to create a room or join an available room.
-> - **Rosalina "BBP Online" Menu**: With BBP closed, press <kbd>L</kbd>+<kbd>Down</kbd>+<kbd>Select</kbd> and open BBP Online. You can normally leave the default settings, turn Relay ON, then launch the game. To play within your group, set your shared PIN first. See [Playing online](#playing-online) for details. You cannot enable Relay or change settings while BBP is running (the Status screen remains available).
-> - **Server Status**: Open "Status" in the menu to check connection latency (Ping/RTT), online player count, recruiting rooms per channel, and rooms currently in game (<kbd>X</kbd> to refresh). This remains available while BBP is running.
+> - **In-game Controls**: After setting up Relay, select local wireless multiplayer in-game. One player creates a room and others join.
+> - **Rosalina "BBP Online" Menu**: With BBP closed, press <kbd>L</kbd>+<kbd>Down</kbd>+<kbd>Select</kbd> and open BBP Online to configure settings. See [Playing online](#playing-online) for menu items and controls. Settings cannot be changed while BBP is running.
+> - **Server Status**: Open "Status" in the menu to check connection latency (Ping/RTT), online player count, recruiting rooms per channel, and rooms currently in game (<kbd>X</kbd> to refresh, <kbd>B</kbd> to back). This remains available while BBP is running.
 > - **Encrypted Relay**: Traffic between each console and the relay server is encrypted using Noise NN (`ChaCha20-Poly1305` / `BLAKE2b`). The relay server decrypts the traffic. The connection does not authenticate the server to verify that it is the intended relay.
 > - **Relay Servers**: The default server is `bbprelay.f5.si:24873`. You can configure other relay servers using Custom 1–3 in Rosalina.
-> - **Prerequisites**: All players need the cartridge or digital version of *Daigassou! Band Brothers P* with Update Ver. 2.1 installed on their 3DS. Download Play is not supported.
+> - **Prerequisites**: All players need a 3DS console running custom firmware (boot9strap/Luma3DS) connected to Wi-Fi, and a retail copy of *Daigassou! Band Brothers P* with Update Ver. 2.1 installed. Download Play is not supported.
 >
 > *日本語の詳しい説明は [README_ja.md](README_ja.md) をご覧ください。*
 
@@ -49,21 +49,46 @@
 
 ## Playing online
 
-### Public play
+Configure settings in the Rosalina menu before launching the game. Settings cannot be changed while BBP is running (close the game to change settings).
 
-The default settings are for public play. Leave the PIN at `0000` and select local wireless multiplayer in-game to create a room or join an available room.
+### Opening the menu and controls
+1. With BBP closed, press <kbd>L</kbd>+<kbd>Down</kbd>+<kbd>Select</kbd> to open the Rosalina menu.
+2. Select **BBP Online**.
 
-You normally do not need to change the channel. Each channel has four slots for recruiting rooms. If those slots are full and you cannot create a room, close BBP before switching to another channel (1–5). You can check room counts on the Status screen.
+#### Menu items
+- **Relay: OFF / ON**
+  Enables the relay feature. Press <kbd>A</kbd> to toggle. Turn it ON before launching the game.
+- **Room passphrase** (4-digit PIN)
+  Sets the room access PIN. Press <kbd>A</kbd> to open the editor. Use <kbd>Left</kbd>/<kbd>Right</kbd> to select a digit, <kbd>Up</kbd>/<kbd>Down</kbd> to change the value, and <kbd>A</kbd> to save (<kbd>B</kbd> to cancel).
+  - `0000` (default): Public play. Rooms appear to everyone on the selected channel.
+  - `0001`–`9999`: Group play (PIN). Rooms only appear to players with the exact same PIN (channel is ignored).
+- **Channel** (1–5)
+  Separates public recruiting slots (up to 4 rooms per channel). Press <kbd>A</kbd> to open the list, select with <kbd>Up</kbd>/<kbd>Down</kbd>, and save with <kbd>A</kbd>. Has no effect when using a PIN.
+- **Status**
+  Checks relay connection latency (Ping/RTT), online player count, recruiting rooms per channel, and rooms currently in game (<kbd>X</kbd> to refresh, <kbd>B</kbd> to back). Available while BBP is running.
+- **Relay server...**
+  Selects the relay server. Default is Official (`bbprelay.f5.si:24873`). For custom servers, select Custom 1–3, press <kbd>X</kbd> to edit IPv4:port, and press <kbd>A</kbd> to select.
 
-### Playing within your group
+### Settings persistence
+- **Relay, Channel, Room passphrase**
+  Reset to defaults (Relay: OFF, Channel: 1, PIN: 0000) every time the console reboots. Remember to turn Relay ON before launching BBP.
+- **Relay server... (custom servers)**
+  Custom addresses and your server selection are automatically saved to your SD card and persist across reboots.
 
-Choose the same relay server as the people you want to play with, share a 4-digit PIN (`0001`–`9999`), and have everyone set that PIN. Only rooms created by players using the same PIN are shown in-game, and these rooms do not appear in public listings. Channel settings have no effect when using a PIN.
+### How to play on a public channel
+1. Keep the default settings (`Channel: 1`, `Room passphrase: 0000`).
+2. Select `Relay` and press <kbd>A</kbd> to turn it **ON**.
+3. Press <kbd>B</kbd> to close Rosalina and launch BBP.
+4. Select local wireless multiplayer in-game. **One player creates a room, and other players join the room.**
+*If all four room slots on Channel 1 are full, close BBP and switch `Channel` to an open channel (2–5). You can check open slots on the Status screen.*
 
-Anyone using the same PIN can join, so share it only with the people you want to play with.
-
-### Settings at startup
-
-Every time the console boots, Relay is OFF, the channel is `1`, and the PIN is `0000`. Set these before launching BBP when you want to play online.
+### How to play within your group (PIN)
+1. Agree on a 4-digit PIN (`0001`–`9999`) with your friends beforehand.
+2. Select `Room passphrase`, enter the PIN, and press <kbd>A</kbd> to save.
+3. Select `Relay` and press <kbd>A</kbd> to turn it **ON**.
+4. Press <kbd>B</kbd> to close Rosalina and launch BBP.
+5. Select local wireless multiplayer in-game. **One player creates a room, and other players join.** Only players with the matching PIN will see the room.
+*Anyone using the same PIN can join, so share it only with people in your group.*
 
 ## Installation and upgrade
 Luma3DS requires [boot9strap](https://github.com/SciresM/boot9strap) to run.
