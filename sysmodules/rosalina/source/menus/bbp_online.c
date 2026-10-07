@@ -277,6 +277,9 @@ static void bbpQuery(const char *endpoint, bool includeStatus, BbpQuery *out)
                         memset(s_queryPlain + UDS_RELAY_V3_HEADER_SIZE, 0, 20u);
                         memcpy(s_queryPlain + UDS_RELAY_V3_HEADER_SIZE,
                                nonces[i], sizeof(nonces[i]));
+                        if (i && !udsRelayV3StatusQueryPrepare(
+                                s_queryPlain + UDS_RELAY_V3_HEADER_SIZE, nonces[i]))
+                            continue;
                         size_t innerLength = UDS_RELAY_V3_HEADER_SIZE +
                                              header.logical_body_length;
                         wireLength = 0u;

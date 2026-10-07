@@ -14,6 +14,8 @@
 #define UDS_RELAY_V3_MAX_LOGICAL_BODY 1510u
 #define UDS_RELAY_V3_MAX_REASSEMBLIES 8u
 #define UDS_RELAY_V3_ADMISSION_MARKER "BBP_PROXY_ACCESS"
+#define UDS_RELAY_V3_STATUS_EXTENSION_VERSION 1u
+#define UDS_RELAY_V3_STATUS_CAP_U16_COUNTS 1u
 
 #define UDS_RELAY_V3_PKT_REGISTER 0x01u
 #define UDS_RELAY_V3_PKT_REGISTER_ACK 0x02u
@@ -100,6 +102,7 @@ bool udsRelayV3HostParse(const char *data, size_t length, uint8_t address[4],
 bool udsRelayV3RegisterBodyBuild(uint8_t out[0x30], const uint8_t client_id[16],
                                  const uint8_t nonce[16], uint8_t channel,
                                  uint16_t pin);
+bool udsRelayV3StatusQueryPrepare(uint8_t out[20], const uint8_t nonce[8]);
 bool udsRelayV3QueryReplyMatches(const uint8_t *packet, size_t length,
                                   uint8_t expected_type, const uint8_t nonce[8]);
 bool udsRelayV3HeartbeatBodyBuild(uint8_t out[0x18], const uint8_t scope[16],

@@ -1,4 +1,5 @@
 import ctypes
+import struct
 import subprocess
 import tempfile
 from pathlib import Path
@@ -8,6 +9,31 @@ from _support import ROOT
 
 SOURCE = ROOT / "sysmodules/rosalina/source/bbp_relay_message.c"
 INCLUDE = ROOT / "sysmodules/rosalina/include"
+
+
+def test_status_query_capability_and_full_u16_reply():
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "libbbp-status.so"
+        subprocess.run(["cc", "-shared", "-fPIC", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                        "-I", str(INCLUDE), str(SOURCE), "-o", str(path)], check=True)
+        codec = ctypes.CDLL(str(path))
+        codec.udsRelayV3BodyValidate.argtypes = [ctypes.c_uint8, ctypes.c_uint8,
+                                               ctypes.c_void_p, ctypes.c_uint16]
+        codec.udsRelayV3BodyValidate.restype = ctypes.c_bool
+        for online in (65, 4097, 65535):
+            body = b"12345678" + struct.pack("<HH5B3x", online, online, 0, 1, 2, 3, 4)
+            assert codec.udsRelayV3BodyValidate(0x14, 0, body, 20)
+        invalid = b"12345678" + struct.pack("<HH5B3x", 64, 65, 0, 0, 0, 0, 0)
+        assert not codec.udsRelayV3BodyValidate(0x14, 0, invalid, 20)
+        codec.udsRelayV3StatusQueryPrepare.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+        codec.udsRelayV3StatusQueryPrepare.restype = ctypes.c_bool
+        body = ctypes.create_string_buffer(20)
+        assert codec.udsRelayV3StatusQueryPrepare(body, b"12345678")
+        assert body.raw == b"12345678\x01\x01\x00" + bytes(9)
+        assert codec.udsRelayV3BodyValidate(0x13, 0, body, 20)
+        assert codec.udsRelayV3BodyValidate(0x13, 0, b"12345678" + bytes(12), 20)
+        assert not codec.udsRelayV3StatusQueryPrepare(body, bytes(8))
+        assert not codec.udsRelayV3StatusQueryPrepare(None, b"12345678")
 
 
 class Header(ctypes.Structure):

@@ -367,9 +367,9 @@ bool udsRelayV3BodyValidate(uint8_t packet_type, uint8_t flags,
     case UDS_RELAY_V3_PKT_PROBE_ACK:
         return bytesNonzero(body, 8u);
     case UDS_RELAY_V3_PKT_STATUS_QUERY:
-        return bytesNonzero(body, 8u) && !bytesNonzero(body + 8u, 12u);
+        return bytesNonzero(body, 8u);
     case UDS_RELAY_V3_PKT_STATUS_REPLY:
-        if (!bytesNonzero(body, 8u) || readLe16(body + 8u) > 64u ||
+        if (!bytesNonzero(body, 8u) ||
             readLe16(body + 10u) > readLe16(body + 8u) ||
             bytesNonzero(body + 17u, 3u))
             return false;
@@ -454,6 +454,17 @@ bool udsRelayV3RegisterBodyBuild(uint8_t out[0x30], const uint8_t client_id[16],
     out[41] = 0u;
     writeLe16(out + 42u, pin != 0u ? pin : channel);
     writeLe32(out + 44u, 0u);
+    return true;
+}
+
+bool udsRelayV3StatusQueryPrepare(uint8_t out[20], const uint8_t nonce[8])
+{
+    if (out == NULL || nonce == NULL || !bytesNonzero(nonce, 8u))
+        return false;
+    memcpy(out, nonce, 8u);
+    memset(out + 8u, 0, 12u);
+    out[8] = UDS_RELAY_V3_STATUS_EXTENSION_VERSION;
+    writeLe16(out + 9u, UDS_RELAY_V3_STATUS_CAP_U16_COUNTS);
     return true;
 }
 
