@@ -27,8 +27,6 @@
 
 For the operator-run relay server, website, and community, see the [overview](docs/terms/README.md), [user terms](docs/terms/user-terms.md), [service policy](docs/terms/service-policy.md), and [privacy policy](docs/terms/privacy-policy.md). These documents are in Japanese.
 
-The documents are drafts and have not yet taken effect.
-
 ![Boot menu screenshot](img/boot_menu_v1321.png)
 ![Rosalina menu screenshot](img/rosalina_menu_v1321.png)
 

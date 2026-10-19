@@ -6,9 +6,7 @@
 
 ## 利用規約とデータの取扱い
 
-運営するリレーサーバー・Webサイト・コミュニティの利用条件とデータの取扱いは、[全体の要約](docs/terms/README.md)を確認してください。詳細は[利用規約](docs/terms/user-terms.md)、[運営方針・サービス提供条件](docs/terms/service-policy.md)、[プライバシーポリシー](docs/terms/privacy-policy.md)に記載しています。
-
-現在掲載している文書は、施行前の草案です。
+公式リレーサーバや関連Webサイト、運営コミュニティの利用条件とデータの取扱いは、[全体の要約](docs/terms/README.md)を確認してください。詳細は[利用規約](docs/terms/user-terms.md)、[運営方針・サービス提供条件](docs/terms/service-policy.md)、[プライバシーポリシー](docs/terms/privacy-policy.md)に記載しています。
 
 ## 前提条件
 
