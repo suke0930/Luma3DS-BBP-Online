@@ -23,9 +23,18 @@
 >
 > *日本語の詳しい説明は [README_ja.md](README_ja.md) をご覧ください。*
 
-## Service terms and data handling
+## Official server terms and data handling
 
-For the operator-run relay server, website, and community, see the [overview](docs/terms/README.md), [user terms](docs/terms/user-terms.md), [service policy](docs/terms/service-policy.md), and [privacy policy](docs/terms/privacy-policy.md). These documents are in Japanese.
+The software in this repository is open-source (GPLv3), and third-party or self-hosted relay servers are not governed by these terms.
+
+When using the default **Official relay server (`bbprelay.f5.si:24873`)**, related website, or official community (operated by `suke0930`), the following terms and policies apply, and **connecting or using the service constitutes agreement to them**:
+
+- [Overview (Summary)](docs/terms/README.md)
+- [User Terms](docs/terms/user-terms.md)
+- [Service Policy](docs/terms/service-policy.md)
+- [Privacy Policy](docs/terms/privacy-policy.md)
+
+*(These documents are written in Japanese.)*
 
 ![Boot menu screenshot](img/boot_menu_v1321.png)
 ![Rosalina menu screenshot](img/rosalina_menu_v1321.png)
@@ -70,7 +79,7 @@ Configure settings in the Rosalina menu before launching the game. Settings cann
 - **Status**
   Checks relay connection latency (Ping/RTT), online player count, recruiting rooms per channel, and rooms currently in game (<kbd>X</kbd> to refresh, <kbd>B</kbd> to back). Available while BBP is running.
 - **Relay server...**
-  Selects the relay server. Default is Official (`bbprelay.f5.si:24873`). For custom servers, select Custom 1–3, press <kbd>X</kbd> to edit IPv4:port, and press <kbd>A</kbd> to select.
+  Selects the relay server. Default is Official (`bbprelay.f5.si:24873`, subject to the [Official server terms and data handling](#official-server-terms-and-data-handling)). For custom servers, select Custom 1–3, press <kbd>X</kbd> to edit IPv4:port, and press <kbd>A</kbd> to select.
 
 ### Settings persistence
 - **Relay, Channel, Room passphrase**
