@@ -27,7 +27,7 @@
 
 The software in this repository is open-source (GPLv3), and third-party or self-hosted relay servers are not governed by these terms.
 
-When using the default **Official relay server (`bbprelay.f5.si:24873`)**, related website, or official community (operated by `suke0930`), the following terms and policies apply, and **connecting or using the service constitutes agreement to them**:
+When using the default **Project Phonograph official relay server (`bbprelay.f5.si:24873`)**, related website (planned), or official community (operated by `suke0930`), the following terms and policies apply, and **connecting or using the service constitutes agreement to them**:
 
 - [Overview (Summary)](docs/terms/README.md)
 - [User Terms](docs/terms/user-terms.md)
